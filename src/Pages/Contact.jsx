@@ -11,11 +11,12 @@ import {
   Alert,
 } from '@mui/material';
 
+const STORAGE_KEYS = {
+  contactDraft: 'groceriaContactDraft',
+  contactMessages: 'groceriaContactMessages',
+};
+
 const Contact = () => {
-  const STORAGE_KEYS = {
-    contactDraft: 'groceriaContactDraft',
-    contactMessages: 'groceriaContactMessages',
-  };
   const [formData, setFormData] = useState({
     name: '',
     email: '',
