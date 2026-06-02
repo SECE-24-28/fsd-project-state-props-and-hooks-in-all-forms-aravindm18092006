@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Box,
@@ -13,6 +13,27 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { validateEmail, validatePassword } from '../utils/validation';
 
+const STORAGE_KEYS = {
+  users: 'groceriaUsers',
+  loginDraft: 'groceriaLoginDraft',
+  currentUser: 'groceriaCurrentUser',
+  loginHistory: 'groceriaLoginHistory',
+};
+
+const FormInput = ({ label, name, type = 'text', value, onChange, error, helperText }) => (
+  <TextField
+    fullWidth
+    label={label}
+    type={type}
+    name={name}
+    value={value}
+    onChange={onChange}
+    error={error}
+    helperText={helperText}
+    margin="normal"
+  />
+);
+
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -21,6 +42,22 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEYS.loginDraft);
+    if (savedDraft) {
+      try {
+        const parsedData = JSON.parse(savedDraft);
+        setFormData(prev => ({ ...prev, ...parsedData }));
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.loginDraft);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.loginDraft, JSON.stringify(formData));
+  }, [formData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,6 +81,35 @@ const Login = () => {
       return;
     }
 
+    const registeredUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+    const matchedUser = registeredUsers.find(
+      (user) =>
+        user.email.toLowerCase() === formData.email.toLowerCase() &&
+        user.password === formData.password
+    );
+
+    if (!matchedUser) {
+      setErrors({ email: 'Email or password is incorrect' });
+      return;
+    }
+
+    const currentUser = {
+      name: matchedUser.name,
+      email: matchedUser.email,
+      phone: matchedUser.phone,
+      lastLoginAt: new Date().toISOString(),
+    };
+
+    const loginHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.loginHistory) || '[]');
+    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+    localStorage.setItem(
+      STORAGE_KEYS.loginHistory,
+      JSON.stringify([
+        ...loginHistory,
+        { email: matchedUser.email, loginAt: currentUser.lastLoginAt },
+      ])
+    );
+    localStorage.removeItem(STORAGE_KEYS.loginDraft);
     setMessage('Login successful! Redirecting...');
     setTimeout(() => {
       navigate('/');
@@ -65,28 +131,23 @@ const Login = () => {
             {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
 
             <Box component="form" onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
+              <FormInput
                 label="Email"
-                type="email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 error={!!errors.email}
                 helperText={errors.email}
-                margin="normal"
               />
-
-              <TextField
-                fullWidth
+              <FormInput
                 label="Password"
-                type="password"
                 name="password"
+                type="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 error={!!errors.password}
                 helperText={errors.password}
-                margin="normal"
               />
 
               <Button

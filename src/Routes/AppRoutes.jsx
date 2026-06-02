@@ -12,6 +12,7 @@ import ProductDetails from "../Pages/ProductDetails";
 import Wishlist from "../Pages/Wishlist";
 import Contact from "../Pages/Contact";
 import FAQ from "../Pages/FAQ";
+import Admin from "../Pages/Admin";
 
 function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ function AppRoutes() {
       <Route path="/wishlist" element={<Wishlist />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   );
 }

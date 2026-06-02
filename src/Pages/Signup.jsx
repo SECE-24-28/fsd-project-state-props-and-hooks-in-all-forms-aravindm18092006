@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Box,
@@ -18,6 +18,25 @@ import {
   validatePassword,
 } from '../utils/validation';
 
+const STORAGE_KEYS = {
+  users: 'groceriaUsers',
+  signupDraft: 'groceriaSignupDraft',
+};
+
+const FormInput = ({ label, name, type = 'text', value, onChange, error, helperText }) => (
+  <TextField
+    fullWidth
+    label={label}
+    type={type}
+    name={name}
+    value={value}
+    onChange={onChange}
+    error={error}
+    helperText={helperText}
+    margin="normal"
+  />
+);
+
 const Signup = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -29,6 +48,22 @@ const Signup = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEYS.signupDraft);
+    if (savedDraft) {
+      try {
+        const parsedData = JSON.parse(savedDraft);
+        setFormData(prev => ({ ...prev, ...parsedData }));
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.signupDraft);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.signupDraft, JSON.stringify(formData));
+  }, [formData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -61,6 +96,29 @@ const Signup = () => {
       return;
     }
 
+    const registeredUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+    const userExists = registeredUsers.some(
+      (user) => user.email.toLowerCase() === formData.email.toLowerCase()
+    );
+
+    if (userExists) {
+      setErrors({ email: 'This email is already registered' });
+      return;
+    }
+
+    const newUser = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(
+      STORAGE_KEYS.users,
+      JSON.stringify([...registeredUsers, newUser])
+    );
+    localStorage.removeItem(STORAGE_KEYS.signupDraft);
     setMessage('Registration successful! Redirecting to login...');
     setTimeout(() => {
       navigate('/login');
@@ -82,62 +140,48 @@ const Signup = () => {
             {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
 
             <Box component="form" onSubmit={handleSubmit}>
-              <TextField
-                fullWidth
+              <FormInput
                 label="Full Name"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 error={!!errors.name}
                 helperText={errors.name}
-                margin="normal"
               />
-
-              <TextField
-                fullWidth
+              <FormInput
                 label="Email"
-                type="email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 error={!!errors.email}
                 helperText={errors.email}
-                margin="normal"
               />
-
-              <TextField
-                fullWidth
+              <FormInput
                 label="Phone Number"
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
                 error={!!errors.phone}
                 helperText={errors.phone}
-                margin="normal"
               />
-
-              <TextField
-                fullWidth
+              <FormInput
                 label="Password"
-                type="password"
                 name="password"
+                type="password"
                 value={formData.password}
                 onChange={handleInputChange}
                 error={!!errors.password}
                 helperText={errors.password}
-                margin="normal"
               />
-
-              <TextField
-                fullWidth
+              <FormInput
                 label="Confirm Password"
-                type="password"
                 name="confirmPassword"
+                type="password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword}
-                margin="normal"
               />
 
               <Button

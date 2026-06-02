@@ -1,7 +1,82 @@
-import React from 'react';
-import { Container, Box, Typography, Card, CardContent, Grid, TextField, Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Grid,
+  TextField,
+  Button,
+  Alert,
+} from '@mui/material';
 
 const Contact = () => {
+  const STORAGE_KEYS = {
+    contactDraft: 'groceriaContactDraft',
+    contactMessages: 'groceriaContactMessages',
+  };
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const ContactInput = ({ label, name, multiline = false, rows = 1 }) => (
+    <TextField
+      fullWidth
+      label={label}
+      name={name}
+      value={formData[name]}
+      onChange={handleInputChange}
+      margin="normal"
+      multiline={multiline}
+      rows={rows}
+    />
+  );
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEYS.contactDraft);
+    if (savedDraft) {
+      try {
+        const parsedData = JSON.parse(savedDraft);
+        setFormData(prev => ({ ...prev, ...parsedData }));
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEYS.contactDraft);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.contactDraft, JSON.stringify(formData));
+  }, [formData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const allMessages = JSON.parse(localStorage.getItem(STORAGE_KEYS.contactMessages) || '[]');
+    const payload = {
+      ...formData,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(STORAGE_KEYS.contactMessages, JSON.stringify([...allMessages, payload]));
+    localStorage.removeItem(STORAGE_KEYS.contactDraft);
+    setFormData({
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+    });
+    setSuccessMessage('Your message has been saved. We will contact you soon.');
+  };
+
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eef6ff, #f6fbff)', py: 4 }}>
       <Container maxWidth="lg">
@@ -37,12 +112,13 @@ const Contact = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                   Send us a message
                 </Typography>
-                <Box component="form">
-                  <TextField fullWidth label="Name" margin="normal" />
-                  <TextField fullWidth label="Email" margin="normal" />
-                  <TextField fullWidth label="Subject" margin="normal" />
-                  <TextField fullWidth label="Message" margin="normal" multiline rows={4} />
-                  <Button variant="contained" sx={{ mt: 2 }}>
+                {successMessage && <Alert severity="success" sx={{ mb: 2 }}>{successMessage}</Alert>}
+                <Box component="form" onSubmit={handleSubmit}>
+                  <ContactInput label="Name" name="name" />
+                  <ContactInput label="Email" name="email" />
+                  <ContactInput label="Subject" name="subject" />
+                  <ContactInput label="Message" name="message" multiline rows={4} />
+                  <Button variant="contained" type="submit" sx={{ mt: 2 }}>
                     Send Message
                   </Button>
                 </Box>

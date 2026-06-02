@@ -22,10 +22,13 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: "'Inter', 'Roboto', 'Arial', sans-serif",
-    h1: { fontSize: '2.5rem', fontWeight: 700 },
-    h2: { fontSize: '2rem', fontWeight: 700 },
-    h4: { fontSize: '1.25rem', fontWeight: 600 },
+    fontFamily: "'Lucida Bright', 'Times New Roman', serif",
+    h1: { fontSize: '2.5rem', fontWeight: 700, fontFamily: "'Bodoni MT Black', serif" },
+    h2: { fontSize: '2rem', fontWeight: 700, fontFamily: "'Bodoni MT Black', serif" },
+    h3: { fontSize: '1.75rem', fontWeight: 700, fontFamily: "'Bodoni MT Black', serif" },
+    h4: { fontSize: '1.25rem', fontWeight: 600, fontFamily: "'Bodoni MT Black', serif" },
+    h5: { fontSize: '1.1rem', fontWeight: 600, fontFamily: "'Bodoni MT Black', serif" },
+    h6: { fontSize: '1rem', fontWeight: 600, fontFamily: "'Bodoni MT Black', serif" },
   },
   components: {
     MuiButton: {
