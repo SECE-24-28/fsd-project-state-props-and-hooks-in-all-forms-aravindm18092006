@@ -34,7 +34,7 @@ const ForgotPassword = () => {
         setError(res.message || 'Something went wrong. Please try again.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Unable to connect to server. Is the backend running?');
+      setError(err.response?.data?.message || 'Server is waking up, please try again in a moment.');
     } finally {
       setLoading(false);
     }

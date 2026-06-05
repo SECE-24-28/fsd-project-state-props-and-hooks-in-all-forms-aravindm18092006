@@ -119,7 +119,7 @@ const Signup = () => {
       }
     } catch (error) {
       const apiMessage =
-        error.response?.data?.message || 'Unable to connect to server. Start backend on port 5000.';
+        error.response?.data?.message || 'Server is waking up, please try again in a moment.';
       if (error.response?.data?.message?.toLowerCase().includes('email')) {
         setErrors({ email: error.response.data.message });
       }

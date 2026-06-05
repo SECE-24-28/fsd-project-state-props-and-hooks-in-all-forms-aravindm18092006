@@ -97,7 +97,7 @@ const Login = () => {
       }
     } catch (error) {
       const apiMessage =
-        error.response?.data?.message || 'Unable to connect to server. Start backend on port 5000.';
+        error.response?.data?.message || 'Server is waking up, please try again in a moment.';
       setErrorMessage(apiMessage);
     } finally {
       setLoading(false);
