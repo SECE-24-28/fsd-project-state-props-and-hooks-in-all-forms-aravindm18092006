@@ -12,12 +12,10 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { validateEmail, validatePassword } from '../utils/validation';
+import { loginUser, saveAuthData } from '../api/authApi';
 
 const STORAGE_KEYS = {
-  users: 'groceriaUsers',
   loginDraft: 'groceriaLoginDraft',
-  currentUser: 'groceriaCurrentUser',
-  loginHistory: 'groceriaLoginHistory',
 };
 
 const FormInput = ({ label, name, type = 'text', value, onChange, error, helperText }) => (
@@ -42,6 +40,8 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedDraft = localStorage.getItem(STORAGE_KEYS.loginDraft);
@@ -65,8 +65,10 @@ const Login = () => {
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+    setMessage('');
     const newErrors = {};
 
     if (!validateEmail(formData.email)) {
@@ -81,39 +83,25 @@ const Login = () => {
       return;
     }
 
-    const registeredUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-    const matchedUser = registeredUsers.find(
-      (user) =>
-        user.email.toLowerCase() === formData.email.toLowerCase() &&
-        user.password === formData.password
-    );
+    setLoading(true);
+    try {
+      const response = await loginUser(formData);
 
-    if (!matchedUser) {
-      setErrors({ email: 'Email or password is incorrect' });
-      return;
+      if (response.success) {
+        saveAuthData(response.data);
+        localStorage.removeItem(STORAGE_KEYS.loginDraft);
+        setMessage('Login successful! Redirecting...');
+        setTimeout(() => navigate('/'), 1500);
+      } else {
+        setErrorMessage(response.message || 'Login failed');
+      }
+    } catch (error) {
+      const apiMessage =
+        error.response?.data?.message || 'Unable to connect to server. Start backend on port 5000.';
+      setErrorMessage(apiMessage);
+    } finally {
+      setLoading(false);
     }
-
-    const currentUser = {
-      name: matchedUser.name,
-      email: matchedUser.email,
-      phone: matchedUser.phone,
-      lastLoginAt: new Date().toISOString(),
-    };
-
-    const loginHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.loginHistory) || '[]');
-    localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
-    localStorage.setItem(
-      STORAGE_KEYS.loginHistory,
-      JSON.stringify([
-        ...loginHistory,
-        { email: matchedUser.email, loginAt: currentUser.lastLoginAt },
-      ])
-    );
-    localStorage.removeItem(STORAGE_KEYS.loginDraft);
-    setMessage('Login successful! Redirecting...');
-    setTimeout(() => {
-      navigate('/');
-    }, 1500);
   };
 
   return (
@@ -128,6 +116,7 @@ const Login = () => {
               Welcome back to Groceria
             </Typography>
 
+            {errorMessage && <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert>}
             {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
 
             <Box component="form" onSubmit={handleSubmit}>
@@ -155,9 +144,10 @@ const Login = () => {
                 variant="contained"
                 size="large"
                 type="submit"
+                disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
               >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
               </Button>
             </Box>
 
@@ -169,6 +159,15 @@ const Login = () => {
                 sx={{ color: '#1976d2', fontWeight: 600, cursor: 'pointer' }}
               >
                 Sign up here
+              </Link>
+            </Typography>
+            <Typography variant="body2" sx={{ textAlign: 'center', color: '#556b8c', mt: 1 }}>
+              <Link
+                component="button"
+                onClick={() => navigate('/forgot-password')}
+                sx={{ color: '#1976d2', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Forgot your password?
               </Link>
             </Typography>
           </CardContent>

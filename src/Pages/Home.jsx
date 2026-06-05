@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -17,11 +17,42 @@ import LocalFloristIcon from '@mui/icons-material/LocalFlorist';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SecurityIcon from '@mui/icons-material/Security';
 import logo from '../image/Groceria logo.png';
+import { DEFAULT_PRODUCTS } from '../utils/defaultProducts';
+import { fetchProducts } from '../api/productApi';
+
+const IMAGE_MAP = Object.fromEntries(DEFAULT_PRODUCTS.map((p) => [p.name, p.image]));
 
 const Home = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    const loadFeatured = async () => {
+      try {
+        const data = await fetchProducts();
+        if (data.success && data.data.length > 0) {
+          const patched = data.data.map((p) => ({
+            ...p,
+            image: IMAGE_MAP[p.name] || p.image,
+            id: p._id || p.id,
+          }));
+          setFeaturedProducts(patched.slice(0, 6).map((item, idx) => ({
+            ...item,
+            label: idx % 2 === 0 ? 'Fresh' : 'Organic',
+          })));
+          return;
+        }
+      } catch (_) {}
+      // Fallback to defaults when backend is offline
+      setFeaturedProducts(DEFAULT_PRODUCTS.slice(0, 6).map((item, idx) => ({
+        ...item,
+        label: idx % 2 === 0 ? 'Fresh' : 'Organic',
+      })));
+    };
+    loadFeatured();
+  }, []);
 
   const categories = [
     { icon: '🍎', name: 'Fruits' },
@@ -30,15 +61,6 @@ const Home = () => {
     { icon: '🍞', name: 'Bakery' },
     { icon: '🥩', name: 'Meat' },
     { icon: '🧃', name: 'Beverages' },
-  ];
-
-  const featuredProducts = [
-    { id: 1, name: 'Red Apples', price: 89, oldPrice: 110, weight: '1 kg pack', emoji: '🍎', label: 'Fresh' },
-    { id: 2, name: 'Broccoli', price: 55, weight: '500 g', emoji: '🥦', label: 'Organic' },
-    { id: 3, name: 'Fresh Milk', price: 49, weight: '1 L', emoji: '🥛', label: 'Fresh' },
-    { id: 4, name: 'Whole Wheat Bread', price: 39, weight: '600 g', emoji: '🍞', label: 'Baked' },
-    { id: 5, name: 'Chicken Breast', price: 299, weight: '500 g', emoji: '🥩', label: 'Fresh' },
-    { id: 6, name: 'Orange Juice', price: 79, weight: '1 L', emoji: '🧃', label: 'Fresh' },
   ];
 
   const features = [
@@ -131,6 +153,7 @@ const Home = () => {
             {categories.map((cat, idx) => (
               <Grid item xs={6} sm={4} md={2} key={idx}>
                 <Card
+                  onClick={() => navigate('/products?category=' + cat.name.toLowerCase())}
                   sx={{
                     textAlign: 'center',
                     cursor: 'pointer',
@@ -193,18 +216,17 @@ const Home = () => {
             {featuredProducts.map((product) => (
               <Grid item xs={12} sm={6} md={4} key={product.id}>
                 <Card sx={{ transition: 'all 0.3s ease', '&:hover': { boxShadow: '0 16px 32px rgba(14, 79, 193, 0.15)' } }}>
-                  <Box
-                    sx={{
-                      background: '#f0f7ff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: { xs: 120, md: 150 },
-                      position: 'relative',
-                      fontSize: { xs: '2.5rem', md: '4rem' },
-                    }}
-                  >
-                    {product.emoji}
+                  <Box sx={{ position: 'relative', height: { xs: 140, md: 180 } }}>
+                    <Box
+                      component="img"
+                      src={product.image}
+                      alt={product.name}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
                     <Typography
                       sx={{
                         position: 'absolute',

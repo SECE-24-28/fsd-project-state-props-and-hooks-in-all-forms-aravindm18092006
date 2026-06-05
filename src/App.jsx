@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './Styles/theme';
 import AppRoutes from './Routes/AppRoutes';
 import { CartProvider } from './Context/CartContext';
+import { WishlistProvider } from './Context/WishlistContext';
 import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 
@@ -12,11 +13,13 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <CartProvider>
-        <BrowserRouter>
-          <Navbar />
-          <AppRoutes />
-          <Footer />
-        </BrowserRouter>
+        <WishlistProvider>
+          <BrowserRouter>
+            <Navbar />
+            <AppRoutes />
+            <Footer />
+          </BrowserRouter>
+        </WishlistProvider>
       </CartProvider>
     </ThemeProvider>
   );

@@ -17,9 +17,9 @@ import {
   validatePhone,
   validatePassword,
 } from '../utils/validation';
+import { registerUser, saveAuthData } from '../api/authApi';
 
 const STORAGE_KEYS = {
-  users: 'groceriaUsers',
   signupDraft: 'groceriaSignupDraft',
 };
 
@@ -48,6 +48,8 @@ const Signup = () => {
   });
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedDraft = localStorage.getItem(STORAGE_KEYS.signupDraft);
@@ -71,8 +73,10 @@ const Signup = () => {
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
+    setMessage('');
     const newErrors = {};
 
     if (!validateName(formData.name)) {
@@ -96,33 +100,33 @@ const Signup = () => {
       return;
     }
 
-    const registeredUsers = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-    const userExists = registeredUsers.some(
-      (user) => user.email.toLowerCase() === formData.email.toLowerCase()
-    );
+    setLoading(true);
+    try {
+      const response = await registerUser({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
 
-    if (userExists) {
-      setErrors({ email: 'This email is already registered' });
-      return;
+      if (response.success) {
+        saveAuthData(response.data);
+        localStorage.removeItem(STORAGE_KEYS.signupDraft);
+        setMessage('Registration successful! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        setErrorMessage(response.message || 'Registration failed');
+      }
+    } catch (error) {
+      const apiMessage =
+        error.response?.data?.message || 'Unable to connect to server. Start backend on port 5000.';
+      if (error.response?.data?.message?.toLowerCase().includes('email')) {
+        setErrors({ email: error.response.data.message });
+      }
+      setErrorMessage(apiMessage);
+    } finally {
+      setLoading(false);
     }
-
-    const newUser = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password,
-      createdAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem(
-      STORAGE_KEYS.users,
-      JSON.stringify([...registeredUsers, newUser])
-    );
-    localStorage.removeItem(STORAGE_KEYS.signupDraft);
-    setMessage('Registration successful! Redirecting to login...');
-    setTimeout(() => {
-      navigate('/login');
-    }, 1500);
   };
 
   return (
@@ -137,6 +141,7 @@ const Signup = () => {
               Join Groceria for fresh groceries!
             </Typography>
 
+            {errorMessage && <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert>}
             {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
 
             <Box component="form" onSubmit={handleSubmit}>
@@ -189,9 +194,10 @@ const Signup = () => {
                 variant="contained"
                 size="large"
                 type="submit"
+                disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
               >
-                Sign Up
+                {loading ? 'Signing up...' : 'Sign Up'}
               </Button>
             </Box>
 

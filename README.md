@@ -1,50 +1,210 @@
-Groceria
+Frontend
 
-A simple grocery shopping web app made with React.
+Groceria Frontend is the client-side application of the Groceria Grocery E-Commerce Platform. It provides a modern and responsive shopping experience where users can browse products, manage their cart and wishlist, place orders, and track their purchases.
 
-What I have Completed
+Project Overview
 
-- Created the basic project structure using React.
-- Added routing for all major pages.
-- Built a clean UI using Material UI.
-- Added a navbar and footer for common layout.
-- Added a home page for landing.
-- Added products page with product listing.
-- Added product details page.
-- Created cart system using context.
-- Added add to cart, remove, and quantity update features.
-- Added cart total and basic price calculation.
-- Built checkout page with step-by-step flow.
-- Added login page UI with form validation.
-- Added signup page UI with form validation.
-- Added profile page UI.
-- Added orders page UI.
-- Added wishlist page UI.
-- Added FAQ, Contact, and About pages.
-- Added theme setup for common colors and styling.
+-> Built using React.js
 
-Current status
+-> Provides a responsive user interface for customers and administrators
 
-- Frontend is mostly ready as a prototype.
-- Most data is static (hardcoded) right now.
-- Backend/API integration is not done yet.
-- Database connection is not added yet.
-- Real authentication and payment are not connected yet.
+-> Connects with backend REST APIs
 
-Main Folders
+-> Handles authentication and user sessions
 
-- `src/Components` - common UI components
-- `src/Pages` - all page screens
-- `src/Routes` - app routing setup
-- `src/Context` - cart state management
-- `src/Styles` - theme and styling files
-- `src/utils` - helper functions like validation
+-> Supports product browsing and order management
 
-To Run Project
+Tech Stack
+
+-> React.js
+
+-> React Router DOM
+
+-> Material UI (MUI)
+
+-> Axios
+
+-> Context API
+
+-> JavaScript ES6+
+
+-> HTML5
+
+-> CSS3
+
+-> Netlify
+
+Features
+
+-> User Registration
+
+-> User Login
+
+-> Forgot Password
+
+-> Reset Password
+
+-> Home Page
+
+-> Product Listing
+
+-> Product Search
+
+-> Category Filtering
+
+-> Product Details
+
+-> Shopping Cart
+
+-> Wishlist Management
+
+-> Checkout Page
+
+-> Order Placement
+
+-> Order History
+
+-> User Profile
+
+-> Contact Page
+
+-> Admin Dashboard
+
+-> Product Management
+
+-> User Management
+
+-> Order Management
+
+Application Flow
+
+-> User opens the application
+
+-> React Router manages page navigation
+
+-> Axios communicates with backend APIs
+
+-> Data is fetched and displayed dynamically
+
+-> User actions are stored through backend services
+
+-> Updates are reflected instantly in the interface
+
+Project Structure
+
+frontend/
+
+-> public/
+
+-> src/
+
+-> components/
+
+-> pages/
+
+-> context/
+
+-> services/
+
+-> assets/
+
+-> App.js
+
+-> index.js
+
+Installation
+
+Clone Repository
+
+```bash
+git clone https://github.com/yourusername/groceria-frontend.git
+cd groceria-frontend
+```
+
+Install Dependencies
 
 ```bash
 npm install
+```
+
+Start Development Server
+
+```bash
 npm start
 ```
 
-Open `http://localhost:3000` in browser.
+Environment Variables
+
+Create a .env file:
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
+
+Example API Call
+
+```javascript
+import axios from "axios";
+
+const response = await axios.get(
+  `${process.env.REACT_APP_API_URL}/products`
+);
+
+console.log(response.data);
+```
+
+Pages Included
+
+-> Home
+
+-> Login
+
+-> Register
+
+-> Products
+
+-> Product Details
+
+-> Cart
+
+-> Wishlist
+
+-> Checkout
+
+-> Orders
+
+-> Profile
+
+-> Contact
+
+-> Admin Dashboard
+
+Deployment
+
+-> Frontend deployed using Netlify
+
+-> Connected with GitHub for automatic deployment
+
+-> Production build generated using React build tools
+
+Future Improvements
+
+-> Online Payments
+
+-> Product Reviews
+
+-> Product Ratings
+
+-> Push Notifications
+
+-> Dark Mode
+
+-> AI Product Recommendations
+
+Author
+
+Aravind M
+
+Full Stack Grocery E-Commerce Project
+
+Sri Eshwar College of Engineering

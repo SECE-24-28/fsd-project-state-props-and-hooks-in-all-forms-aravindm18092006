@@ -65,7 +65,11 @@ const About = () => {
             Our Team
           </Typography>
           <Grid container spacing={3}>
-            {['Founder & CEO', 'CTO', 'Operations Head'].map((role, idx) => (
+            {[
+              { name: 'Aravind M', role: 'Founder & CEO' },
+              { name: 'Mehanathan', role: 'CTO' },
+              { name: 'Operations Team', role: 'Operations Head' }
+            ].map((member, idx) => (
               <Grid item xs={12} sm={6} md={4} key={idx}>
                 <Card sx={{ textAlign: 'center' }}>
                   <CardContent>
@@ -73,10 +77,10 @@ const About = () => {
                       👤
                     </Avatar>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      Team Member {idx + 1}
+                      {member.name}
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#556b8c' }}>
-                      {role}
+                      {member.role}
                     </Typography>
                   </CardContent>
                 </Card>
