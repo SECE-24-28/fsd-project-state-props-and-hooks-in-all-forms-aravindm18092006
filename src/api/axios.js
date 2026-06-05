@@ -2,19 +2,14 @@ import axios from 'axios';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// User/auth API — base is /api/user
-const API = axios.create({
-  baseURL: `${BASE_URL}/user`,
+const axiosConfig = {
   headers: { 'Content-Type': 'application/json' },
-});
+  timeout: 30000,
+};
 
-// General API — for products, cart, wishlist, orders
-export const GAPI = axios.create({
-  baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
+const API  = axios.create({ baseURL: `${BASE_URL}/user`, ...axiosConfig });
+export const GAPI = axios.create({ baseURL: BASE_URL,          ...axiosConfig });
 
-// ── Request interceptor: attach JWT token to every request ──────────────────
 const attachToken = (config) => {
   const token = localStorage.getItem('groceriaToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -24,15 +19,12 @@ const attachToken = (config) => {
 API.interceptors.request.use(attachToken);
 GAPI.interceptors.request.use(attachToken);
 
-// ── Response interceptor: handle 401 (expired / invalid token) ──────────────
 const handle401 = (error) => {
   if (error.response?.status === 401) {
-    // Clear all stale auth and cart data
     localStorage.removeItem('groceriaToken');
     localStorage.removeItem('groceriaUser');
     localStorage.removeItem('groceriaCart');
     localStorage.removeItem('groceriaWishlist');
-    // Redirect to login only if not already there
     if (window.location.pathname !== '/login') {
       window.location.href = '/login';
     }
@@ -40,7 +32,23 @@ const handle401 = (error) => {
   return Promise.reject(error);
 };
 
-API.interceptors.response.use((response) => response, handle401);
-GAPI.interceptors.response.use((response) => response, handle401);
+// Retry once on network error (handles Render cold start)
+const retryOnNetworkError = async (error) => {
+  const isNetworkError = !error.response;
+  const alreadyRetried = error.config?._retry;
+  if (isNetworkError && !alreadyRetried) {
+    error.config._retry = true;
+    await new Promise((resolve) => setTimeout(resolve, 8000));
+    return axios(error.config);
+  }
+  return Promise.reject(error);
+};
+
+API.interceptors.response.use((r) => r, async (error) => {
+  try { return await retryOnNetworkError(error); } catch (e) { return handle401(e); }
+});
+GAPI.interceptors.response.use((r) => r, async (error) => {
+  try { return await retryOnNetworkError(error); } catch (e) { return handle401(e); }
+});
 
 export default API;

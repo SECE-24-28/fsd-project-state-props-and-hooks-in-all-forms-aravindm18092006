@@ -97,7 +97,7 @@ const Login = () => {
       }
     } catch (error) {
       const apiMessage =
-        error.response?.data?.message || 'Server is waking up, please try again in a moment.';
+        error.response?.data?.message || 'Could not reach server. Please try again.';
       setErrorMessage(apiMessage);
     } finally {
       setLoading(false);
@@ -147,7 +147,7 @@ const Login = () => {
                 disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
               >
-                {loading ? 'Logging in...' : 'Login'}
+                {loading ? 'Connecting...' : 'Login'}
               </Button>
             </Box>
 

@@ -119,7 +119,7 @@ const Signup = () => {
       }
     } catch (error) {
       const apiMessage =
-        error.response?.data?.message || 'Server is waking up, please try again in a moment.';
+        error.response?.data?.message || 'Could not reach server. Please try again.';
       if (error.response?.data?.message?.toLowerCase().includes('email')) {
         setErrors({ email: error.response.data.message });
       }
@@ -197,7 +197,7 @@ const Signup = () => {
                 disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
               >
-                {loading ? 'Signing up...' : 'Sign Up'}
+                {loading ? 'Connecting...' : 'Sign Up'}
               </Button>
             </Box>
 
