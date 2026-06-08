@@ -15,6 +15,8 @@ import FAQ from '../Pages/FAQ';
 import Admin from '../Pages/Admin';
 import ForgotPassword from '../Pages/ForgotPassword';
 import ResetPassword from '../Pages/ResetPassword';
+import VerifyOtp from '../Pages/VerifyOtp';
+import ResetPasswordOtp from '../Pages/ResetPasswordOtp';
 
 function AppRoutes() {
   return (
@@ -31,6 +33,8 @@ function AppRoutes() {
       <Route path="/login"                  element={<Login />} />
       <Route path="/signup"                 element={<Signup />} />
       <Route path="/forgot-password"        element={<ForgotPassword />} />
+      <Route path="/verify-otp"             element={<VerifyOtp />} />
+      <Route path="/reset-password-otp"     element={<ResetPasswordOtp />} />
       <Route path="/reset-password/:token"  element={<ResetPassword />} />
 
       {/* Protected (user) */}

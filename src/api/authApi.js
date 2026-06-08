@@ -61,6 +61,22 @@ export const forgotPasswordApi = async (email) => {
   return data;
 };
 
+// ─── OTP Flow ─────────────────────────────────────────────────────────────
+export const sendOtpApi = async (email) => {
+  const { data } = await API.post('/send-otp', { email });
+  return data;
+};
+
+export const verifyOtpApi = async (email, otp) => {
+  const { data } = await API.post('/verify-otp', { email, otp });
+  return data;
+};
+
+export const resetPasswordWithOtpApi = async (email, otp, newPassword) => {
+  const { data } = await API.post('/reset-password-otp', { email, otp, newPassword });
+  return data;
+};
+
 // ─── Reset Password via body token (step-based flow) ──────────────────────
 export const resetPasswordApi = async (token, password) => {
   const { data } = await API.post('/reset-password', { token, password });
