@@ -152,9 +152,6 @@ const Navbar = () => {
                     <Button component={RouterLink} to="/login" color="inherit" sx={{ color: '#12254a', fontSize: '0.9rem' }}>
                       Login
                     </Button>
-                    <Button component={RouterLink} to="/signup" variant="contained" color="primary" sx={{ fontSize: '0.9rem' }}>
-                      Sign Up
-                    </Button>
                   </>
                 ) : (
                   <>
