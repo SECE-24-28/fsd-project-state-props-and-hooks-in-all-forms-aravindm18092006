@@ -27,6 +27,8 @@ const Admin = () => {
 
   const [openProductDialog, setOpenProductDialog] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [openOrderDialog, setOpenOrderDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [productForm, setProductForm] = useState({
     name: '', price: '', oldPrice: '', weight: '',
     category: 'fruits', image: '', description: '', stock: '100',
@@ -184,6 +186,11 @@ const Admin = () => {
     } catch (err) {
       setErrorMessage('Failed to update order status.');
     }
+  };
+
+  const handleManageOrder = (order) => {
+    setSelectedOrder(order);
+    setOpenOrderDialog(true);
   };
 
   const handleClearMessages = () => {
@@ -372,6 +379,7 @@ const Admin = () => {
                         <TableCell sx={{ fontWeight: 'bold' }}>Total</TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>Update Status</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Details</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -401,6 +409,11 @@ const Admin = () => {
                               <MenuItem value="delivered">Delivered</MenuItem>
                               <MenuItem value="cancelled">Cancelled</MenuItem>
                             </Select>
+                          </TableCell>
+                          <TableCell>
+                            <Button size="small" variant="contained" onClick={() => handleManageOrder(order)}>
+                              Manage
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -438,6 +451,109 @@ const Admin = () => {
           </CardContent>
         </Card>
       </Container>
+
+      {/* Order Details Dialog */}
+      <Dialog open={openOrderDialog} onClose={() => setOpenOrderDialog(false)} fullWidth maxWidth="md">
+        <DialogTitle sx={{ fontWeight: 700 }}>🧾 Order Details — #{selectedOrder?._id.slice(-8).toUpperCase()}</DialogTitle>
+        <DialogContent dividers>
+          {selectedOrder && (
+            <Grid container spacing={3}>
+              {/* Customer Info */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>👤 Customer</Typography>
+                <Typography><strong>Name:</strong> {selectedOrder.user?.name || 'N/A'}</Typography>
+                <Typography><strong>Email:</strong> {selectedOrder.user?.email || 'N/A'}</Typography>
+                <Typography><strong>Phone:</strong> {selectedOrder.user?.phone || selectedOrder.shippingAddress?.phone || 'N/A'}</Typography>
+              </Grid>
+
+              {/* Shipping Address */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>📍 Shipping Address</Typography>
+                {selectedOrder.shippingAddress ? (
+                  <>
+                    <Typography>{selectedOrder.shippingAddress.fullName}</Typography>
+                    <Typography>{selectedOrder.shippingAddress.address}</Typography>
+                    <Typography>{selectedOrder.shippingAddress.city}{selectedOrder.shippingAddress.postalCode ? ` — ${selectedOrder.shippingAddress.postalCode}` : ''}</Typography>
+                    <Typography>📞 {selectedOrder.shippingAddress.phone}</Typography>
+                  </>
+                ) : <Typography sx={{ color: '#888' }}>No address on record.</Typography>}
+              </Grid>
+
+              <Grid item xs={12}><Divider /></Grid>
+
+              {/* Order Items */}
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: '#1976d2' }}>🛍️ Ordered Products</Typography>
+                <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e0e0e0' }}>
+                  <Table size="small">
+                    <TableHead sx={{ bgcolor: '#f5f5f5' }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Product</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Qty</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Unit Price</TableCell>
+                        <TableCell sx={{ fontWeight: 'bold' }}>Subtotal</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {(selectedOrder.orderItems || []).map((item, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {item.image && <Box component="img" src={item.image} alt={item.name} sx={{ width: 40, height: 40, borderRadius: 1, objectFit: 'cover' }} />}
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.name}</Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>Rs.{item.price?.toFixed(2)}</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>Rs.{(item.price * item.quantity).toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+
+              {/* Pricing Summary */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>💰 Pricing</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Subtotal</Typography><Typography>Rs.{selectedOrder.itemsPrice?.toFixed(2)}</Typography></Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Tax (5%)</Typography><Typography>Rs.{selectedOrder.taxPrice?.toFixed(2)}</Typography></Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Shipping</Typography><Typography sx={{ color: '#4caf50' }}>Free</Typography></Box>
+                <Divider sx={{ my: 1 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography sx={{ fontWeight: 700 }}>Total</Typography><Typography sx={{ fontWeight: 700, color: '#1976d2' }}>Rs.{selectedOrder.totalPrice?.toFixed(2)}</Typography></Box>
+              </Grid>
+
+              {/* Payment & Status */}
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, color: '#1976d2' }}>📋 Order Info</Typography>
+                <Typography><strong>Payment:</strong> {selectedOrder.paymentMethod?.toUpperCase()}</Typography>
+                <Typography><strong>Placed on:</strong> {new Date(selectedOrder.createdAt).toLocaleString('en-IN')}</Typography>
+                <Box sx={{ mt: 1 }}>
+                  <Typography sx={{ fontWeight: 600, mb: 0.5 }}>Update Status:</Typography>
+                  <Select
+                    value={selectedOrder.status}
+                    size="small"
+                    onChange={(e) => {
+                      handleUpdateOrderStatus(selectedOrder._id, e.target.value);
+                      setSelectedOrder({ ...selectedOrder, status: e.target.value });
+                    }}
+                    sx={{ minWidth: 160 }}
+                  >
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="processing">Processing</MenuItem>
+                    <MenuItem value="shipped">Shipped</MenuItem>
+                    <MenuItem value="delivered">Delivered</MenuItem>
+                    <MenuItem value="cancelled">Cancelled</MenuItem>
+                  </Select>
+                </Box>
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenOrderDialog(false)} variant="contained">Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Add / Edit Product Dialog */}
       <Dialog open={openProductDialog} onClose={() => setOpenProductDialog(false)} fullWidth maxWidth="sm">
