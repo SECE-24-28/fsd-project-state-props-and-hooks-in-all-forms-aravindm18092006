@@ -149,7 +149,7 @@ const Navbar = () => {
               <>
                 {!isLoggedIn ? (
                   <>
-                    <Button component={RouterLink} to="/login" color="inherit" sx={{ color: '#12254a', fontSize: '0.9rem' }}>
+                    <Button component={RouterLink} to="/login" variant="contained" color="primary" sx={{ fontSize: '0.9rem' }}>
                       Login
                     </Button>
                   </>
