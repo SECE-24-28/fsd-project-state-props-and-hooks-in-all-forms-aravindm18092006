@@ -23,7 +23,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: "'Lucida Bright', 'Times New Roman', serif",
-    h1: { fontSize: '2.5rem', fontWeight: 700, fontFamily: "'Viner hand ITC', serif" },
+    h1: { fontSize: '2.5rem', fontWeight: 700, fontFamily: "'Britannic Bold', serif" },
     h2: { fontSize: '2rem', fontWeight: 700, fontFamily: "'Times New Roman', serif" },
     h3: { fontSize: '1.75rem', fontWeight: 700, fontFamily: "'Times New Roman', serif" },
     h4: { fontSize: '1.25rem', fontWeight: 600, fontFamily: "'Times New Roman', serif" },
