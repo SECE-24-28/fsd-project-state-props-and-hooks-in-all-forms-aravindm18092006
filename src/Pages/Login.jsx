@@ -105,7 +105,7 @@ const Login = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eef6ff, #f6fbff)', py: 4 }}>
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eef6ff, #f6fbff)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Container maxWidth="sm">
         <Card sx={{ borderRadius: 3, boxShadow: '0 22px 40px rgba(8, 37, 87, 0.08)' }}>
           <CardContent sx={{ p: 4 }}>
