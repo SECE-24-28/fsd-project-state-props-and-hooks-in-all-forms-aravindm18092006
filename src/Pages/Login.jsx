@@ -11,6 +11,7 @@ import {
   Link,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { validateEmail, validatePassword } from '../utils/validation';
 import { loginUser, saveAuthData } from '../api/authApi';
 
@@ -109,6 +110,15 @@ const Login = () => {
       <Container maxWidth="sm">
         <Card sx={{ borderRadius: 3, boxShadow: '0 22px 40px rgba(8, 37, 87, 0.08)' }}>
           <CardContent sx={{ p: 4 }}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate('/')}
+              variant="contained"
+              size="small"
+              sx={{ mb: 2, bgcolor: '#1976d2', '&:hover': { bgcolor: '#1565c0' } }}
+            >
+              Back to Home
+            </Button>
             <Typography variant="h3" sx={{ textAlign: 'center', fontWeight: 700, mb: 1, color: '#1976d2' }}>
               🔐 Login
             </Typography>
