@@ -8,11 +8,19 @@ import { WishlistProvider } from './Context/WishlistContext';
 import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 
-const hideNavFooterRoutes = ['/login', '/signup'];
+const hideNavFooterRoutes = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/verify-otp',
+  '/reset-password-otp',
+];
 
 function Layout() {
   const { pathname } = useLocation();
-  const hide = hideNavFooterRoutes.includes(pathname);
+  const hide =
+    hideNavFooterRoutes.includes(pathname) ||
+    pathname.startsWith('/reset-password/');
   return (
     <>
       {!hide && <Navbar />}

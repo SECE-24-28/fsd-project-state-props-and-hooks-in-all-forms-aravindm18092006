@@ -14,12 +14,12 @@ import { clearAuthData, getStoredUser } from '../api/authApi';
 import logo from '../image/Groceria logo.png';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Products', path: '/products' },
-  { label: 'Orders', path: '/orders' },
-  { label: 'Admin', path: '/admin' },
-  { label: 'Contact', path: '/contact' },
-  { label: 'FAQ', path: '/faq' },
+  { label: 'Home',     path: '/',        adminOnly: false },
+  { label: 'Products', path: '/products', adminOnly: false },
+  { label: 'Orders',   path: '/orders',   adminOnly: false },
+  { label: 'Admin',    path: '/admin',    adminOnly: true  },
+  { label: 'Contact',  path: '/contact',  adminOnly: false },
+  { label: 'FAQ',      path: '/faq',      adminOnly: false },
 ];
 
 const Navbar = () => {
@@ -31,6 +31,12 @@ const Navbar = () => {
 
   const user = getStoredUser();
   const isLoggedIn = !!user;
+  const isAdmin = user?.role === 'admin';
+
+  // Filter nav items based on role
+  const visibleNavItems = navItems.filter(
+    (item) => !item.adminOnly || isAdmin
+  );
 
   const handleLogout = () => {
     clearAuthData();
@@ -61,7 +67,7 @@ const Navbar = () => {
       )}
 
       <List>
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <ListItem key={item.path} disablePadding>
             <ListItemButton component={RouterLink} to={item.path} onClick={() => setDrawerOpen(false)}>
               <ListItemText primary={item.label} />
@@ -134,7 +140,7 @@ const Navbar = () => {
           {/* Center — Nav links (desktop only) */}
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-              {navItems.map((item) => (
+              {visibleNavItems.map((item) => (
                 <Button key={item.path} component={RouterLink} to={item.path} color="inherit"
                   sx={{ color: '#12254a', fontWeight: 600, fontSize: '0.95rem' }}>
                   {item.label}

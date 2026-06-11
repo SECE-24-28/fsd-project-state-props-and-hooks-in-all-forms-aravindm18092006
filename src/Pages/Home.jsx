@@ -88,8 +88,22 @@ const Home = () => {
           backgroundImage: 'radial-gradient(circle at top right, rgba(96, 165, 250, 0.18), transparent 35%), radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 20%)',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 3, md: 4 } }}>
-          <Box component="img" src={logo} alt="Groceria logo" sx={{ width: { xs: 80, md: 110 }, height: 'auto' }} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 3, md: 5 } }}>
+          <Box
+            component="img"
+            src={logo}
+            alt="Groceria logo"
+            sx={{
+              width: { xs: 140, sm: 180, md: 220 },
+              height: 'auto',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 8px 24px rgba(14, 79, 193, 0.18))',
+              transition: 'transform 0.3s ease',
+              '&:hover': {
+                transform: 'scale(1.08)',
+              },
+            }}
+          />
         </Box>
         <Typography variant="h1" sx={{ mb: 2, letterSpacing: '0.02em', fontSize: { xs: '1.75rem', md: '2.5rem' }, color: 'black' }}>
           🛒 Fresh Groceries Delivered To Your Door
