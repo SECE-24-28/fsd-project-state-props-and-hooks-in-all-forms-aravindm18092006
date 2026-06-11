@@ -10,6 +10,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../Context/CartContext';
+import { useWishlist } from '../Context/WishlistContext';
 import { clearAuthData, getStoredUser } from '../api/authApi';
 import logo from '../image/Groceria logo.png';
 
@@ -24,6 +25,7 @@ const navItems = [
 
 const Navbar = () => {
   const { getTotalItems } = useCart();
+  const { wishlist } = useWishlist();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
@@ -179,7 +181,9 @@ const Navbar = () => {
               </>
             )}
             <IconButton component={RouterLink} to="/wishlist" color="inherit" sx={{ p: { xs: 0.75, md: 1 } }}>
-              <FavoriteIcon sx={{ color: '#0e4fc1', fontSize: { xs: 18, md: 24 } }} />
+              <Badge badgeContent={wishlist.length} color="error">
+                <FavoriteIcon sx={{ color: '#0e4fc1', fontSize: { xs: 18, md: 24 } }} />
+              </Badge>
             </IconButton>
             <IconButton component={RouterLink} to="/cart" color="inherit" sx={{ p: { xs: 0.75, md: 1 } }}>
               <Badge badgeContent={getTotalItems()} color="secondary">
