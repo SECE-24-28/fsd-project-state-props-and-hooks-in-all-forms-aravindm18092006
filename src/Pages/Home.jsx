@@ -24,7 +24,6 @@ const Home = () => {
   const { addToCart, cart, updateQuantity } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  const [allProducts, setAllProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
@@ -38,7 +37,6 @@ const Home = () => {
             image: IMAGE_MAP[p.name] || p.image,
             id: p._id || p.id,
           }));
-          setAllProducts(patched);
           setFeaturedProducts(patched.slice(0, 6).map((item, idx) => ({
             ...item,
             label: idx % 2 === 0 ? 'Fresh' : 'Organic',
@@ -48,7 +46,6 @@ const Home = () => {
       } catch (_) {}
       // Fallback to defaults when backend is offline
       const patched = DEFAULT_PRODUCTS.map((p) => ({ ...p, image: IMAGE_MAP[p.name] || p.image }));
-      setAllProducts(patched);
       setFeaturedProducts(patched.slice(0, 6).map((item, idx) => ({
         ...item,
         label: idx % 2 === 0 ? 'Fresh' : 'Organic',
