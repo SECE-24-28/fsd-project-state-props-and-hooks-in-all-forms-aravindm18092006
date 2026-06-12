@@ -57,9 +57,21 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart, synced]);
 
-  // Initial load
+  // Initial load + re-sync when login state changes
   useEffect(() => {
     loadCart();
+  }, [loadCart]);
+
+  // Re-sync cart from MongoDB whenever the user token changes (login/logout)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'groceriaToken') {
+        // Token was added (login) or removed (logout) — reload cart
+        loadCart();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [loadCart]);
 
   const addToCart = async (product) => {

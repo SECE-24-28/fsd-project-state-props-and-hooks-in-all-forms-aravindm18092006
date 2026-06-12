@@ -3,13 +3,15 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Container, Box, Typography, Card, CardContent, Grid, Button,
   Select, MenuItem, FormControl, InputLabel, Paper, IconButton,
-  Tooltip, Snackbar, Alert, CircularProgress,
+  Tooltip, Snackbar, Alert, CircularProgress, TextField, InputAdornment, Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useCart } from '../Context/CartContext';
 import { useWishlist } from '../Context/WishlistContext';
 import { fetchProducts } from '../api/productApi';
@@ -35,13 +37,40 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
+  const [searchInput, setSearchInput] = useState('');   // local input state
 
   const filterBy = searchParams.get('category') || 'all';
+  const searchTerm = searchParams.get('search') || '';
+
+  // Sync input box with URL param on load/navigation
+  useEffect(() => {
+    setSearchInput(searchTerm);
+  }, [searchTerm]);
 
   const setFilterBy = (value) => {
     const newParams = new URLSearchParams(searchParams);
     if (value === 'all') newParams.delete('category');
     else newParams.set('category', value);
+    newParams.delete('search'); // clear search when changing category
+    setSearchParams(newParams);
+  };
+
+  const handleSearch = () => {
+    const q = searchInput.trim();
+    const newParams = new URLSearchParams(searchParams);
+    if (q) newParams.set('search', q);
+    else newParams.delete('search');
+    setSearchParams(newParams);
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('search');
     setSearchParams(newParams);
   };
 
@@ -113,10 +142,17 @@ const Products = () => {
     return 0;
   });
 
-  const filteredProducts =
-    filterBy === 'all'
-      ? sortedProducts
-      : sortedProducts.filter((p) => p.category === filterBy);
+  const filteredProducts = sortedProducts
+    .filter((p) => filterBy === 'all' || p.category === filterBy)
+    .filter((p) => {
+      if (!searchTerm) return true;
+      const q = searchTerm.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        (p.description && p.description.toLowerCase().includes(q))
+      );
+    });
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(135deg, #eef6ff, #f6fbff)', py: { xs: 3, md: 4 } }}>
@@ -150,7 +186,64 @@ const Products = () => {
           <Button variant="contained" onClick={() => navigate('/cart')}>View Cart</Button>
         </Paper>
 
-        {/* Filters */}
+        {/* Search Bar */}
+        <Paper sx={{
+          display: 'flex', gap: 1.5, p: { xs: 1.5, md: 2 },
+          mb: { xs: 2, md: 3 }, borderRadius: 3,
+          boxShadow: '0 8px 24px rgba(8,37,87,0.08)',
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: 'center',
+        }}>
+          <TextField
+            fullWidth
+            placeholder="Search products by name, category..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            variant="outlined"
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#9ab3d4' }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchInput ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={handleClearSearch}>
+                    <ClearIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
+            }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleSearch}
+            startIcon={<SearchIcon />}
+            sx={{ minWidth: { xs: '100%', sm: 130 }, flexShrink: 0 }}
+          >
+            Search
+          </Button>
+        </Paper>
+
+        {/* Active search indicator */}
+        {searchTerm && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Typography variant="body2" sx={{ color: '#556b8c' }}>
+              Results for:
+            </Typography>
+            <Chip
+              label={`"${searchTerm}"`}
+              onDelete={handleClearSearch}
+              size="small"
+              color="primary"
+              variant="outlined"
+            />
+          </Box>
+        )}
+
+        {/* Category + Sort filters */}
         <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap', alignItems: 'center' }}>
           <FormControl sx={{ minWidth: 140 }}>
             <InputLabel>Category</InputLabel>
@@ -173,7 +266,7 @@ const Products = () => {
             </Select>
           </FormControl>
           <Typography sx={{ alignSelf: 'center', color: '#556b8c', fontSize: '0.9rem' }}>
-            {loading ? 'Loading...' : `Showing ${filteredProducts.length} products`}
+            {loading ? 'Loading...' : `${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} found`}
           </Typography>
         </Box>
 
@@ -312,7 +405,20 @@ const Products = () => {
 
         {!loading && filteredProducts.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h5" sx={{ color: '#556b8c' }}>No products found in this category.</Typography>
+            <Typography variant="h5" sx={{ color: '#556b8c', mb: 2 }}>
+              {searchTerm
+                ? `No products found for "${searchTerm}"`
+                : 'No products found in this category.'
+              }
+            </Typography>
+            {searchTerm && (
+              <Button variant="outlined" onClick={handleClearSearch} sx={{ mr: 1 }}>
+                Clear Search
+              </Button>
+            )}
+            <Button variant="contained" onClick={() => navigate('/products')}>
+              View All Products
+            </Button>
           </Box>
         )}
       </Container>
